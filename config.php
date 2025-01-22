@@ -2,10 +2,10 @@
 // Set the default timezone for PHP
 date_default_timezone_set('Asia/Singapore');
 
-$host = 'localhost';
+$host = '152.42.235.233';
 $db = 'crud_db';
 $user = 'root';
-$pass = '';
+$pass = '1ngbaiF()_WE()R)(_#IOfvj';
 
 try {
     // Create the PDO connection
