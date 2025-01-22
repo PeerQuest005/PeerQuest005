@@ -1,0 +1,134 @@
+<?php 
+require 'auth.php';
+require 'config.php';
+
+// Check if the user is a teacher (role 1)
+if ($_SESSION['role'] != 1) {
+    echo "Access denied: Teachers only.";
+    exit();
+}
+
+$teacher_id = $_SESSION['teacher_id']; // Use the teacher_id from the session
+$message = '';
+
+// Handle Create Request
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['create'])) {
+    $school_id = $_SESSION['school_id'];
+    $subject = $_POST['subject'];
+    $class_section = $_POST['class_section'];
+    $class_code = strtoupper(substr(bin2hex(random_bytes(3)), 0, 6));
+
+    // Insert class with the correct teacher_id
+    $stmt = $pdo->prepare("INSERT INTO class_tbl (class_section, class_subject, class_code, teacher_id) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$class_section, $subject, $class_code, $teacher_id]);
+    $message = "Class created successfully with code: $class_code.";
+
+    // Redirect to prevent form resubmission
+    header("Location: teacher_dashboard.php");
+    exit();
+}
+
+// Handle Edit Request
+if (isset($_GET['edit'])) {
+    $class_id = $_GET['edit'];
+    $stmt = $pdo->prepare("SELECT * FROM class_tbl WHERE class_id = ? AND teacher_id = ?");
+    $stmt->execute([$class_id, $teacher_id]);
+    $editClass = $stmt->fetch();
+}
+
+// Handle Update Request
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
+    $class_id = $_POST['class_id'];
+    $subject = $_POST['subject'];
+    $class_section = $_POST['class_section'];
+
+    $stmt = $pdo->prepare("UPDATE class_tbl SET class_section = ?, class_subject = ? WHERE class_id = ? AND teacher_id = ?");
+    $stmt->execute([$class_section, $subject, $class_id, $teacher_id]);
+    $message = "Class updated successfully.";
+
+    // Redirect to prevent form resubmission
+    header("Location: teacher_dashboard.php");
+    exit();
+}
+
+// Handle Delete Request
+if (isset($_GET['delete'])) {
+    $class_id = $_GET['delete'];
+    $stmt = $pdo->prepare("DELETE FROM class_tbl WHERE class_id = ? AND teacher_id = ?");
+    $stmt->execute([$class_id, $teacher_id]);
+    $message = "Class deleted successfully.";
+
+    // Redirect to prevent URL parameter resubmission
+    header("Location: teacher_dashboard.php");
+    exit();
+}
+
+// Fetch all sections created by this teacher using teacher_id
+$sections = $pdo->prepare("SELECT * FROM class_tbl WHERE teacher_id = ?");
+$sections->execute([$teacher_id]);
+$sections = $sections->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+</head>
+<body>
+    <h2>Teacher's Dashboard</h2>
+    <p>Welcome to the teacher's dashboard, <strong><?php echo htmlspecialchars($_SESSION['username']); ?>!</strong></p>
+    <p><a href="logout.php">Logout</a></p>
+
+    <!-- Display success/error message -->
+    <?php if ($message): ?>
+        <p><?php echo htmlspecialchars($message); ?></p>
+    <?php endif; ?>
+
+    <!-- Create Class Form -->
+    <h3><?php echo isset($editClass) ? "Edit Class" : "Create a New Class"; ?></h3>
+    <form method="post" action="teacher_dashboard.php">
+        <input type="hidden" name="class_id" value="<?php echo isset($editClass) ? htmlspecialchars($editClass['class_id']) : ''; ?>">
+        <label for="class_section">Class Section:</label>
+        <input type="text" id="class_section" name="class_section" required value="<?php echo isset($editClass) ? htmlspecialchars($editClass['class_section']) : ''; ?>">
+        
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" required value="<?php echo isset($editClass) ? htmlspecialchars($editClass['class_subject']) : ''; ?>">
+        
+        <button type="submit" name="<?php echo isset($editClass) ? 'update' : 'create'; ?>">
+            <?php echo isset($editClass) ? "Update Class" : "Create Class"; ?>
+        </button>
+    </form>
+
+    <!-- Display List of Sections Created by the Teacher -->
+    <h3>Your Classes</h3>
+    <ul>
+        <?php foreach ($sections as $class): ?>
+            <li>
+                <strong><?php echo htmlspecialchars($class['class_subject']); ?></strong> 
+                (Code: <?php echo htmlspecialchars($class['class_code']); ?>, Section: <?php echo htmlspecialchars($class['class_section']); ?>)
+                
+                <a href="teacher_dashboard.php?edit=<?php echo $class['class_id']; ?>">Edit</a>
+                
+                <!-- Delete with Confirmation -->
+                <a href="javascript:void(0);" onclick="confirmDelete(<?php echo $class['class_id']; ?>)">Delete</a>
+                
+                <!-- View Class List -->
+                <a href="view_classlist.php?class_id=<?php echo $class['class_id']; ?>">View Class List</a>
+
+                <!-- View Assessment Button -->
+                <a href="view_assessment_teacher.php?class_id=<?php echo $class['class_id']; ?>">View Assessment</a> <!-- Updated link for Teacher's View -->
+            </li>
+        <?php endforeach; ?>
+    </ul>
+
+    <script>
+        function confirmDelete(class_id) {
+            if (confirm("Are you sure you want to delete this class/subject? All data including student's activity will be deleted.")) {
+                window.location.href = 'teacher_dashboard.php?delete=' + class_id;
+            }
+        }
+    </script>
+</body>
+</html>

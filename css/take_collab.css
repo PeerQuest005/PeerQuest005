@@ -1,0 +1,102 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    display: flex;
+}
+.main-content {
+    flex: 2;
+}
+.chat-panel {
+    flex: 1;
+    margin-left: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+.chat-input {
+    display: flex;
+}
+.chat-input input {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.chat-input button {
+    padding: 5px 10px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.chat-input button:hover {
+    background-color: #45a049;
+}
+.question {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: none;
+}
+.active {
+    display: block;
+}
+#boss-health-container {
+    margin-bottom: 20px;
+    text-align: center;
+}
+#boss-health-bar {
+    height: 30px;
+    background-color: #ff4c4c; /* Boss health color */
+    border: 1px solid #000;
+    width: 100%;
+    position: relative;
+}
+#boss-health-progress {
+    height: 100%;
+    background-color: #4CAF50; /* Health progress */
+    width: 100%;
+}
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+button:hover {
+    background-color: #45a049;
+}
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+.next-button-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.highlighted {
+    font-weight: bold;
+    color: green;
+}
+.checkmark {
+    font-size: 14px;
+    color: green;
+    margin-left: 5px;
+}

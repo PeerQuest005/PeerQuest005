@@ -1,0 +1,216 @@
+/* General styles */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    height: 100vh;
+    justify-content: center;
+}
+
+/* Overlay to darken background */
+#overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(128, 128, 128, 0.7); /* Grey with low transparency */
+    z-index: 10;
+}
+
+/* Top bar styling */
+#top-bar {
+    width: 600px;
+    height: 50px;
+    background: linear-gradient(to left, #FD579B 100%, #FE90BD 52%, #FFFFFF 2%);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600; /* Semi Bold */
+    font-size: 20px;
+    letter-spacing: 7%;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    position: absolute;
+    top: -25px; /* Adjusted closer to the top of the dialogue box */
+    left: 50%;
+    transform: translateX(-50%); /* Center horizontally */
+}
+
+/* Centering the study companion container */
+#study-companion-container {
+    position: relative;
+    z-index: 20;
+    text-align: center;
+    width: 600px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.38);
+    padding: 10px 0 20px 0;
+    margin: 0 auto; /* Center horizontally */
+}
+
+/* Dialogue box */
+#study-companion {
+    width: 600px;
+    height: 150px; /* Reduced height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+#study-companion p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600; /* Semi Bold */
+    font-size: 20px;
+    letter-spacing: 7%;
+    color: #24243A;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    margin: 0;
+    padding: 10px 20px;
+}
+
+/* Skip button */
+#dialogue-skip {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: url('dialogue_skip.png') no-repeat center center;
+    background-size: contain;
+    animation: bounce 1.5s infinite ease-in-out, blink 1.5s infinite alternate;
+    cursor: pointer;
+    z-index: 25;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes blink {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.5;
+    }
+}
+
+/* Clickable box for responses */
+#dialogue-box {
+    position: absolute;
+    bottom: -60px; /* Place it below the dialogue box */
+    right: 20px; /* Align to the right */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.response {
+    width: 250px; /* Adjusted width */
+    height: 50px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600; /* Semi Bold */
+    font-size: 18px;
+    letter-spacing: 7%;
+    color: #24243A;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.response:hover {
+    background-color: #24243A;
+    color: white;
+}
+
+.response:active {
+    background-color: #12121A;
+    color: white;
+}
+
+.response.hidden {
+    display: none;
+}
+
+/* Assessment container styles */
+#assessment-container {
+    display: none;
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 5;
+    visibility: hidden;
+}
+
+
+#assessment-container.active {
+    display: block; /* Show when active */
+    visibility: visible;
+}
+
+
+/* Textarea styling */
+textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: none;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #008cba;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #005f87;
+}
+
+/* Style for Charaubelle GIF */
+#charaubelle {
+    position: absolute;
+    top: 48%; /* Center vertically */
+    left: 22%;  /* Align to the left */
+    transform: translateY(-50%); /* Adjust for perfect centering */
+    width: 240px; /* Adjust size as needed */
+    height: auto;
+    z-index: 40; /* Ensure it's above other elements */
+}
+/* Adjust layout for study companion container */
+#study-companion-container {
+    margin-left: 220px; /* Add space to make room for Charaubelle */
+    position: relative;
+}

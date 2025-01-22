@@ -1,0 +1,130 @@
+/* General styling for body and background */
+body {
+    background: url('../images/loginbg.png') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-end; /* Align content to the right */
+    align-items: center;
+    padding-right: 230px; /* Add some padding from the right edge */
+}
+
+/* Login card styling */
+.login-card {
+    background: rgba(255, 255, 255, 0.237);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 400px;
+}
+
+.login-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #382a65;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    font-size: 0.9rem;
+    color: #4a4a4a;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.form-control:focus {
+    border-color: #382a65;
+    box-shadow: 0 0 5px rgba(56, 42, 101, 0.5);
+}
+
+/* Password container */
+.password-container {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #382a65;
+    transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+    color: #6c63ff;
+}
+
+/* Options */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.forgot-password {
+    color: #382a65;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+    color: #6c63ff;
+}
+
+/* Button styling */
+.btn-primary {
+    width: 100%;
+    background-color: #382a65;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #fff;
+    color: #382a65;
+    border: 1px solid #382a65;
+}
+
+/* Register link */
+.register-link {
+    font-size: 0.9rem;
+    color: #4a4a4a;
+}
+
+.register-link a {
+    color: #382a65;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.register-link a:hover {
+    color: #6c63ff;
+}
