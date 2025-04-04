@@ -47,6 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Grade Essays</title>
+<link rel="icon" type="image/webp" href="images/logo/pq_logo.webp"> 
+
+<link rel="icon" type="image/webp" href="images/logo/pq_logo.webp"> 
+
 </head>
 <body>
     <h2>Grade Essays for Assessment ID: <?php echo htmlspecialchars($assessment_id); ?></h2>

@@ -38,6 +38,10 @@ try {
             justify-content: space-between; 
         } 
     </style> 
+<link rel="icon" type="image/webp" href="images/logo/pq_logo.webp"> 
+
+<link rel="icon" type="image/webp" href="images/logo/pq_logo.webp"> 
+
 </head> 
 <body> 
     <div class="container my-5"> 

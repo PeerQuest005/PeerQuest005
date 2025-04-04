@@ -1,10 +1,11 @@
 <?php
-require 'auth.php'; // Ensure student authentication
+require 'auth.php'; // Ensure authentication
 require 'config.php';
 
-if ($_SESSION['role'] !== 2) { // Assuming 2 is the role ID for students
-    header("Location: login.php");
-    exit();
+// Check if the user has the correct role (student or teacher)
+if ($_SESSION['role'] != 1 && $_SESSION['role'] != 2) {
+    $_SESSION['login_error'] = 'Access denied. You must be logged in.';
+    header('Location: ./login.php');
 }
 
 // Validate and fetch the module_id from the GET request
@@ -15,9 +16,30 @@ if (!isset($_GET['module_id']) || !is_numeric($_GET['module_id'])) {
 
 $module_id = intval($_GET['module_id']);
 
-// Fetch the module details for the provided module_id
-$stmt = $pdo->prepare("SELECT m.title, m.content, m.created_at, c.class_section, c.class_subject FROM modules_tbl m INNER JOIN class_tbl c ON m.class_id = c.class_id INNER JOIN student_classes sc ON c.class_id = sc.class_id WHERE m.module_id = ? AND m.status = 'Published' AND sc.student_id = ?");
-$stmt->execute([$module_id, $_SESSION['student_id']]);
+// Prepare the query with dynamic checks for students or teachers
+if ($_SESSION['role'] === 2) {
+    // Student query
+    $stmt = $pdo->prepare("
+        SELECT m.module_id, m.title, m.content, m.created_at, m.class_id, c.class_section, c.class_subject 
+        FROM modules_tbl m 
+        INNER JOIN class_tbl c ON m.class_id = c.class_id 
+        INNER JOIN student_classes sc ON c.class_id = sc.class_id 
+        WHERE m.module_id = ? AND m.status = 'Published' AND sc.student_id = ?
+    ");
+    $stmt->execute([$module_id, $_SESSION['student_id']]);
+} elseif ($_SESSION['role'] === 1) {
+    // Teacher query
+    $stmt = $pdo->prepare("
+        SELECT m.module_id, m.title, m.content, m.created_at, m.class_id, c.class_section, c.class_subject 
+        FROM modules_tbl m 
+        INNER JOIN class_tbl c ON m.class_id = c.class_id 
+        WHERE m.module_id = ? AND m.status = 'Published' AND c.teacher_id = ?
+    ");
+    $stmt->execute([$module_id, $_SESSION['teacher_id']]);
+}
+
+
+// Fetch the module details
 $module = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$module) {
@@ -28,7 +50,7 @@ if (!$module) {
 // Get the current page from the query string, default to page 1
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? intval($_GET['page']) : 1;
 
-// Divide content into chunks of 300 characters
+// Divide content into chunks of 600 characters
 $content = str_split($module['content'], 600);
 $total_pages = count($content);
 
@@ -37,92 +59,88 @@ if ($page < 1 || $page > $total_pages) {
     echo "Invalid page.";
     exit();
 }
+
+// Get class_id from the URL (GET parameter)
+$class_id = isset($_GET['class_id']) ? intval($_GET['class_id']) : 0;
+
+// Fetch the class information using the class_id
+$classStmt = $pdo->prepare("SELECT class_subject, class_section FROM class_tbl WHERE class_id = ?");
+$classStmt->execute([$class_id]);
+$class = $classStmt->fetch(PDO::FETCH_ASSOC);
+
+// Display the subject and section in the title
+
+$moduleStmt = $pdo->prepare("SELECT * FROM modules_tbl WHERE class_id = ? AND status = 'Published' ORDER BY created_at DESC");
+$moduleStmt->execute([$class_id]);
+$modules = $moduleStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($module['title']); ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-    body {
-        margin: 0; /* Remove default margin */
-        padding: 0; /* Remove default padding */
-        min-height: 100vh; /* Ensure the body covers the full viewport height */
-        background: url('images/module_background.svg') no-repeat center center fixed;
-        background-size: cover; /* Ensure the image covers the entire background */
-        color: #fff;
-        font-family: 'Comic Sans MS', cursive, sans-serif;
-    }
-    .container {
-        max-width: 900px; /* Keep content width manageable */
-        background: rgba(0, 0, 0, 0.8);
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
-        margin: 5% auto; /* Center the container vertically and horizontally */
-    }
-    h2 {
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-    }
-    .btn-secondary {
-        background-color: #ffcc00;
-        color: #000;
-        font-weight: bold;
-        border: none;
-        transition: transform 0.2s;
-    }
-    .btn-secondary:hover {
-        background-color: #ffd633;
-        transform: scale(1.1);
-    }
-    hr {
-        border-top: 3px solid #ffcc00;
-    }
-    p {
-        font-size: 1.1rem;
-        line-height: 1.6;
-    }
-    .progress {
-        background-color: #fff;
-    }
-    .progress-bar {
-        background-color: #ffcc00;
-    }
-</style>
+    <title><?php echo htmlspecialchars($module['title']); ?> | PeerQuest</title>
+    <link rel="stylesheet" href="css/module_view.css">
+    <link rel="icon" type="image/webp" href="images/logo/pq_logo.webp">
+
+    <link rel="icon" type="image/webp" href="images/logo/pq_logo.webp">
 
 </head>
+
 <body>
-<div class="container mt-5">
-    <h2><?php echo htmlspecialchars($module['title']); ?></h2>
-    <p><strong>Class Section:</strong> <?php echo htmlspecialchars($module['class_section']); ?></p>
-    <p><strong>Class Subject:</strong> <?php echo htmlspecialchars($module['class_subject']); ?></p>
-    <p><strong>Created At:</strong> <?php echo htmlspecialchars($module['created_at']); ?></p>
-    <hr>
-    <div class="progress mt-3">
-        <div class="progress-bar position-relative" role="progressbar" style="width: <?php echo ($page / $total_pages) * 100; ?>%; background-color: #ffcc00; color: black; text-align: right;" aria-valuenow="<?php echo $page; ?>" aria-valuemin="0" aria-valuemax="<?php echo $total_pages; ?>">
-            <span class="position-absolute end-0 pe-2" style="font-weight: bold;"><?php echo round(($page / $total_pages) * 100); ?>%</span>
+    <div class="container">
+
+        <?php if ($_SESSION['role'] === 1): ?>
+            <!-- Show "Go Back for Teacher" if the user is a teacher -->
+            <a class="btn" href="teacher_modules.php?class_id=<?php echo $module['class_id']; ?>">Back to Modules</a>
+        <?php elseif ($_SESSION['role'] === 2): ?>
+            <!-- Show "Back for Student" if the user is a student -->
+            <a class="btn" href="student_modules.php?class_id=<?php echo $module['class_id']; ?>">Back to Modules</a>
+        <?php endif; ?>
+
+        <h2><?php echo htmlspecialchars($module['title']); ?></h2>
+        <p><strong>Class: </strong> <?php echo htmlspecialchars($module['class_subject']); ?>
+            (<?php echo htmlspecialchars($module['class_section']); ?>)</p>
+
+        <div class="module-header">
+            <img src="images/charaubelle/C_module.webp" alt="Module Decor" class="module-decor">
+        </div>
+        <!-- Progress bar -->
+        <div class="progress-container">
+            <div class="progress-bar" style="width: <?php echo ($page / $total_pages) * 100; ?>%;">
+                <span><?php echo round(($page / $total_pages) * 100); ?>%</span>
+            </div>
+        </div>
+
+        <!-- Module content -->
+        <div id="targetSection" class="content-section">
+            <p><?php echo nl2br(htmlspecialchars($content[$page - 1])); ?></p>
+        </div>
+
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons">
+            <?php if ($page > 1): ?>
+                <a href="?module_id=<?php echo $module_id; ?>&page=<?php echo $page - 1; ?>" class="btn">Previous</a>
+            <?php endif; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <a href="?module_id=<?php echo $module_id; ?>&page=<?php echo $page + 1; ?>#targetSection"
+                    class="btn">Next</a>
+            <?php endif; ?>
         </div>
     </div>
-    <div>
-        <p><?php echo nl2br(htmlspecialchars($content[$page - 1])); ?></p>
-    </div>
-    <div class="d-flex justify-content-between mt-4">
-        <?php if ($page > 1): ?>
-            <a href="?module_id=<?php echo $module_id; ?>&page=<?php echo $page - 1; ?>" class="btn btn-secondary">Previous</a>
-        <?php else: ?>
-            <span></span>
-        <?php endif; ?>
-        <?php if ($page < $total_pages): ?>
-            <a href="?module_id=<?php echo $module_id; ?>&page=<?php echo $page + 1; ?>" class="btn btn-secondary">Next</a>
-        <?php else: ?>
-            <span></span>
-        <?php endif; ?>
-    </div>
-    <a href="student_modules.php" class="btn btn-secondary mt-3">Back to Modules</a>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var target = document.getElementById("targetSection");
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+</script>
+
 </html>

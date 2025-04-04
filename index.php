@@ -1,6 +1,19 @@
 <?php
 require 'auth.php';
 require 'config.php';
+session_start();
+
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+    if ($_SESSION['role'] == 1) {
+        header("Location: teacher_dashboard.php");
+    } else {
+        header("Location: student_dashboard.php");
+    }
+    exit();
+} else {
+    header("Location: login.php");
+    exit();
+}
 
 // Check if editing or adding a new item
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

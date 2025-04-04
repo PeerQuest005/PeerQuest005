@@ -8,10 +8,11 @@ if ($_SESSION['role'] != 2) {
     exit();
 }
 
-// Check if the assessment ID is provided in the URL
-if (isset($_GET['assessment_id'])) {
+// Check if the assessment ID and class ID are provided in the URL
+if (isset($_GET['assessment_id']) && isset($_GET['class_id'])) {
     $assessment_id = $_GET['assessment_id'];
-    
+    $class_id = $_GET['class_id'];  // Retrieve class_id from the URL
+
     // Increment the 'ach_answered_assessments' field for the logged-in user
     $stmt = $pdo->prepare("UPDATE student_tbl SET ach_answered_assessments = ach_answered_assessments + 1 WHERE student_id = ?");
     $stmt->execute([$_SESSION['student_id']]);
@@ -25,19 +26,22 @@ if (isset($_GET['assessment_id'])) {
         // Redirect to the appropriate assessment page based on type
         switch ($assessment['type']) {
             case 'Essay':
-                header("Location: take_essay.php?assessment_id=" . $assessment_id);
+                header("Location: take_essay.php?assessment_id=" . $assessment_id . "&class_id=" . $class_id);
+                exit();
+            case 'Essay - Collaborative':
+                header("Location: host_or_join.php?assessment_id=" . $assessment_id . "&class_id=" . $class_id);
                 exit();
             case 'True or False':
-                header("Location: take_true_false.php?assessment_id=" . $assessment_id);
+                header("Location: take_true_false.php?assessment_id=" . $assessment_id . "&class_id=" . $class_id);
                 exit();
             case 'Multiple Choice - Individual':
-                header("Location: take_multiple_choice.php?assessment_id=" . $assessment_id);
+                header("Location: take_multiple_choice.php?assessment_id=" . $assessment_id . "&class_id=" . $class_id);
                 exit();
             case 'Multiple Choice - Collaborative':
-                header("Location: host_or_join.php?assessment_id=" . $assessment_id);
+                header("Location: host_or_join.php?assessment_id=" . $assessment_id . "&class_id=" . $class_id);
                 exit();
             case 'Recitation':
-                header("Location: take_recitation.php?assessment_id=" . $assessment_id);
+                header("Location: take_recitation.php?assessment_id=" . $assessment_id . "&class_id=" . $class_id);
                 exit();
             default:
                 echo "Invalid Assessment Type.";
@@ -46,5 +50,9 @@ if (isset($_GET['assessment_id'])) {
     } else {
         echo "Assessment not found.";
         exit();
-}}
+}
+} else {
+    echo "Assessment ID and Class ID are required.";
+    exit();
+}
 ?>

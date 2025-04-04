@@ -54,6 +54,10 @@ $_SESSION['assessment_id'] = $assessment_id;
             });
         })();
     </script>
+<link rel="icon" type="image/webp" href="images/logo/pq_logo.webp"> 
+
+<link rel="icon" type="image/webp" href="images/logo/pq_logo.webp"> 
+
 </head>
 <body>
     <p>Victory <?php echo htmlspecialchars($username); ?>!</p>

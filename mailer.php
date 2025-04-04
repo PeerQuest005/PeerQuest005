@@ -12,7 +12,7 @@ $mail = new PHPMailer(true);
 // $mail->SMTPDebug = SMTP::DEBUG_SERVER;
 
 // for debugging eto
-// $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+$mail->SMTPDebug = SMTP::DEBUG_SERVER;
 
 $mail->SMTPDebug = 0;
 
@@ -31,5 +31,6 @@ $mail->Password = "abnn bwwi mksx cxsq"; // Replace with your password
 
 // Enable HTML emails
 $mail->isHtml(true);
+$mail->CharSet = "UTF-8"; // Ensure proper encoding
 
 return $mail;

@@ -12,7 +12,7 @@ if (isset($_GET['module_id'])) {
     $moduleId = $_GET['module_id'];
 
     if (!is_numeric($moduleId)) {
-        header("Location: teacher_dashboard.php");
+        header("Location: teacher_modules.php");
         exit();
     }
 
@@ -22,11 +22,14 @@ if (isset($_GET['module_id'])) {
     $module = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$module) {
-        header("Location: teacher_dashboard.php");
+        header("Location: teacher_modules.php");
         exit();
     }
+
+    // Fetch class_id from the current module
+    $class_id = $module['class_id'];
 } else {
-    header("Location: teacher_dashboard.php");
+    header("Location: teacher_modules.php");
     exit();
 }
 
@@ -40,12 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt = $pdo->prepare("UPDATE modules_tbl SET title = ?, content = ?, status = 'Saved' WHERE module_id = ? AND teacher_id = ?");
     $stmt->execute([$moduleTitle, $moduleContent, $moduleId, $_SESSION['teacher_id']]);
 
-    // Set the success message and redirect to the teacher_dashboard.php page
+    // Set the success message and redirect to the modules page
     $message = "Module updated successfully.";
-    header("Location: teacher_dashboard.php?message=" . urlencode($message));
+    header("Location: teacher_modules.php?class_id={$class_id}&message=" . urlencode($message));
     exit();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -53,88 +55,109 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Module</title>
+    <title>Edit Module - <?php echo htmlspecialchars($module['title']); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: #fff;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #F7F7F7;
+            font-family: 'Inter', sans-serif;
         }
-        .container {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+
+        .edit-module-container {
+            max-width: 1200px;
+            margin: 60px auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        h2 {
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+
+        .edit-module-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #24243A;
+            margin-bottom: 20px;
         }
-        .btn-primary {
-            background-color: #ffcc00;
-            color: #000;
-            font-weight: bold;
+
+        .form-label {
+            font-weight: 600;
+            color: #24243A;
+        }
+
+        .form-control {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn-update, .btn-back {
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-align: center;
             border: none;
-            transition: transform 0.2s;
         }
-        .btn-primary:hover {
-            background-color: #ffd633;
-            transform: scale(1.1);
+
+        .btn-update {
+            background-color: #47A99C;
+            color: white;
         }
-        .btn-secondary {
-            background-color: #2a5298;
-            color: #fff;
-            font-weight: bold;
-            transition: transform 0.2s;
+
+        .btn-update:hover {
+            background-color: #3e8b7e;
         }
-        .btn-secondary:hover {
-            background-color: #3b6baa;
-            transform: scale(1.1);
+
+        .btn-back {
+            background-color: #dcdcdcb4;
+            color: #24243A;
         }
-        textarea {
-            background-color: #fff;
-            color: #000;
-            border: 2px solid #ffcc00;
-            border-radius: 5px;
-        }
-        textarea:focus {
-            border-color: #ffd633;
-            outline: none;
-            box-shadow: 0 0 5px #ffd633;
-        }
-        input[type="text"] {
-            background-color: #fff;
-            color: #000;
-            border: 2px solid #ffcc00;
-            border-radius: 5px;
-        }
-        input[type="text"]:focus {
-            border-color: #ffd633;
-            outline: none;
-            box-shadow: 0 0 5px #ffd633;
+
+        .btn-back:hover {
+            background-color: #1c1c2c;
+            color: #ffffff;
         }
     </style>
+<link rel="icon" type="image/webp" href="images/logo/pq_logo.webp"> 
+
+<link rel="icon" type="image/webp" href="images/logo/pq_logo.webp"> 
+
 </head>
 <body>
-<div class="container mt-5">
-    <h2>Edit Module</h2>
-    <p class="text-success"> <?php echo $message ?? ''; ?> </p>
+
+<div class="edit-module-container">
+    <h1 class="edit-module-title">
+        Edit Module <span class="module-title-dynamic">- <?php echo htmlspecialchars($module['title']); ?></span>
+    </h1>
+
+    <?php if ($message): ?>
+        <p class="text-success"><?php echo $message; ?></p>
+    <?php endif; ?>
 
     <form method="post">
         <div class="mb-3">
-            <label for="module_title" class="form-label">Module Title</label>
-            <input type="text" name="module_title" id="module_title" class="form-control" value="<?php echo htmlspecialchars($module['title']); ?>" required>
+            <label for="moduleTitle" class="form-label">Module Title</label>
+            <input type="text" id="moduleTitle" name="module_title" value="<?php echo htmlspecialchars($module['title']); ?>" class="form-control" required>
         </div>
-        <div class="mb-3">
-            <label for="module_content" class="form-label">Content</label>
-            <textarea name="module_content" id="module_content" class="form-control" rows="5" required><?php echo htmlspecialchars($module['content']); ?></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Update Module</button>
-    </form>
 
-    <a href="teacher_dashboard.php" class="btn btn-secondary mt-3">Back to Modules</a>
+        <div class="mb-3">
+            <label for="moduleContent" class="form-label">Content</label>
+            <textarea id="moduleContent" name="module_content" class="form-control" rows="5" required><?php echo htmlspecialchars($module['content']); ?></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" name="update" class="btn btn-update">Update Module</button>
+            <a href="teacher_modules.php?class_id=<?php echo $class_id; ?>" class="btn btn-back">Back to Modules</a>
+        </div>
+    </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

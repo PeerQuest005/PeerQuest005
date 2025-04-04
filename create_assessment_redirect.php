@@ -25,7 +25,10 @@ if ($type == 'Essay') {
 } elseif ($type == 'Multiple Choice - Individual') {
     header("Location: assessment_multiple_choice.php?assessment_id=$assessment_id");
 
-} elseif ($type == 'Multiple Choice - Collaboration') {
+} elseif ($type == 'Essay - Collaborative') {
+        header("Location: assessment_essay_collab.php?assessment_id=$assessment_id");
+
+} elseif ($type == 'Multiple Choice - Collaborative') {
     header("Location: assessment_multiple_choice_collab.php?assessment_id=$assessment_id");
 
 }elseif ($type == 'Recitation') {
